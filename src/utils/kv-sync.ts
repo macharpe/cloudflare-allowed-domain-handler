@@ -61,7 +61,7 @@ export class KVSync {
             })
             .catch((error) => {
               errors++;
-              console.error(`Failed to sync ${listType.toUpperCase()} domain ${item.value}:`, error);
+              console.error(`Failed to sync ${listType.toUpperCase()} domain ${item.value}:`, String(error));
             })
         );
       }
@@ -79,7 +79,7 @@ export class KVSync {
       console.log(`${listType.toUpperCase()} sync completed: ${imported} imported, ${errors} errors`);
       return { imported, errors };
     } catch (error) {
-      console.error(`Sync from Cloudflare ${listType.toUpperCase()} list failed:`, error);
+      console.error(`Sync from Cloudflare ${listType.toUpperCase()} list failed:`, String(error));
       return { imported, errors: errors + 1 };
     }
   }
