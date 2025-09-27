@@ -16,7 +16,7 @@ export default {
     try {
       validateEnvironment(env);
     } catch (error) {
-      console.error('Environment validation failed:', error);
+      console.error('Environment validation failed:', String(error));
       return new Response('Configuration Error', {
         status: HTTP_STATUS.INTERNAL_SERVER_ERROR,
         headers: { 'Content-Type': 'text/plain' },
@@ -75,7 +75,7 @@ export default {
         headers: { 'Content-Type': 'text/plain' },
       });
     } catch (error) {
-      console.error('Worker error:', error);
+      console.error('Worker error:', String(error));
       await securityManager.logSecurityEvent({
         type: 'validation_failure',
         ip: request.headers.get('CF-Connecting-IP') || 'unknown',
@@ -207,7 +207,7 @@ async function handleAddDomain(
         domain,
       });
     } catch (error) {
-      console.error('Error adding domain:', error);
+      console.error('Error adding domain:', String(error));
 
       await securityManager.logSecurityEvent({
         type: 'validation_failure',
@@ -257,7 +257,7 @@ async function handleGetKVBackup(env: Env, performanceManager: PerformanceManage
       },
     });
   } catch (error) {
-    console.error('Error fetching KV backup:', error);
+    console.error('Error fetching KV backup:', String(error));
     return jsonResponse({
       success: false,
       message: 'Failed to fetch KV backup',
@@ -300,7 +300,7 @@ async function handleGetSyncStatus(env: Env, performanceManager: PerformanceMana
       },
     });
   } catch (error) {
-    console.error('Error fetching sync status:', error);
+    console.error('Error fetching sync status:', String(error));
     return jsonResponse({
       success: false,
       message: 'Failed to fetch sync status',

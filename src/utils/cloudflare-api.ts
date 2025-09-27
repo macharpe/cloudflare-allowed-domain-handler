@@ -130,7 +130,7 @@ export class CloudflareAPI {
         item.value.toLowerCase() === domain.toLowerCase()
       );
     } catch (error) {
-      console.error('Error checking domain existence:', error);
+      console.error('Error checking domain existence:', String(error));
       return false;
     }
   }
