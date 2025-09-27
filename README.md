@@ -352,4 +352,4 @@ GPL-3.0 License - see LICENSE file for details.
 
 ---
 
-**Built with ❤️ using Cloudflare Workers, TypeScript, and modern web technologies.**
+**Built with ❤️ using Cloudflare Workers and TypeScript.**
