@@ -149,6 +149,25 @@ jobs:
           sarif_file: semgrep.sarif
           category: semgrep
 
+      - name: Display scan summary
+        if: always()
+        run: |
+          echo "📊 Semgrep Security Scan Summary"
+          echo "================================"
+          if [ -f semgrep-results.json ]; then
+            echo "✅ Scan completed successfully"
+            jq -r '.results | length' semgrep-results.json | xargs echo "Total findings:"
+            if [ -f semgrep.sarif ]; then
+              echo "✅ SARIF report generated"
+              if ! gh api repos/${{ github.repository }}/code-scanning/analyses &>/dev/null; then
+                echo "⚠️  Code scanning not enabled - SARIF upload may fail"
+                echo "💡 To enable: Go to Settings > Security & analysis > Code scanning"
+              fi
+            fi
+          else
+            echo "❌ No results file found"
+          fi
+
       - name: Comment on PR with results
         if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
