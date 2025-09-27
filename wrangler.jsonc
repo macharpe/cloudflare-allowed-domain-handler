@@ -1,0 +1,41 @@
+{
+  "name": "allowed-domain-handler",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-03-07",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "vars": {
+    "CF_ACCOUNT_ID": "6b3bd3e4a3c3f11b51c67f98641a8688",
+    "CF_DNS_LIST_ID": "8c39e7a7-3eee-4463-a8bf-0d510aa47b23", // [DNS] Allowed Domains
+    "CF_HTTP_LIST_ID": "cfdd47d9-224e-446c-8049-f9cc966a5c5b" // [HTTP] Allowed Domains
+  },
+  // Secret: CF_API_TOKEN (set via: wrangler secret put CF_API_TOKEN)
+
+  // Disable workers.dev and preview URLs
+  "workers_dev": false,
+
+  // Custom domain configuration
+  "routes": [
+    {
+      "pattern": "adh.macharpe.com",
+      "custom_domain": true
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "kv_namespaces": [
+    {
+      "binding": "DNS_DOMAINS_BACKUP",
+      "id": "e9e7821006df4d96b23c220894bb5461",
+      "preview_id": "69e682ce61eb40029666a2756f43180a"
+    },
+    {
+      "binding": "HTTP_DOMAINS_BACKUP",
+      "id": "804c4a1bab54481caa39de734399cd5e",
+      "preview_id": "fcba1100b75d4e25930017026f929f1a"
+    }
+  ]
+}

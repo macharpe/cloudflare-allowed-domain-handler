@@ -1,0 +1,111 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Wrangler
+.wrangler/
+.dev.vars
+
+# Environment variables and secrets
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+.envrc
+*.secret
+*.key
+
+# Cloudflare secrets (NEVER commit these)
+wrangler.toml.backup
+.dev.vars
+.prod.vars
+
+# Claude configuration (local settings only)
+.claude/settings.local.json
+.claude/*.local.*
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE/Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Testing
+coverage/
+*.lcov
+.nyc_output/
+test-results/
+
+# Cache
+.npm/
+.eslintcache
+.parcel-cache/
+.cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Package files
+*.tgz
+.yarn-integrity
+.pnp.*
+.yarn/*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*~
+
+# Documentation (if generated)
+docs/generated/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Claude
+.claude/
+CLAUDE.MD
+
+# Package manager lock files (choose one strategy)
+# Uncomment ONE of the following based on your preference:
+# package-lock.json  # If using npm and want reproducible builds
+# yarn.lock         # If using yarn
+# pnpm-lock.yaml    # If using pnpm
