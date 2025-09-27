@@ -109,3 +109,7 @@ CLAUDE.MD
 # package-lock.json  # If using npm and want reproducible builds
 # yarn.lock         # If using yarn
 # pnpm-lock.yaml    # If using pnpm
+
+# docs 
+docs/*
+docs/
