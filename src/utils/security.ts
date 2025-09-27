@@ -64,7 +64,7 @@ export class SecurityManager {
 
       return true;
     } catch (error) {
-      console.error('Rate limit check failed:', error);
+      console.error('Rate limit check failed:', String(error));
       return true;
     }
   }
@@ -101,7 +101,7 @@ export class SecurityManager {
         endpoint: event.endpoint
       });
     } catch (error) {
-      console.error('Failed to log security event:', error);
+      console.error('Failed to log security event:', String(error));
     }
   }
 
