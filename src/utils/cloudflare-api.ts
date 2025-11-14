@@ -8,10 +8,10 @@ export class CloudflareAPI {
   private baseUrl = 'https://api.cloudflare.com/client/v4';
 
   constructor(env: Env) {
-    this.accountId = env.CF_ACCOUNT_ID;
-    this.apiToken = env.CF_API_TOKEN;
-    this.dnsListId = env.CF_DNS_LIST_ID;
-    this.httpListId = env.CF_HTTP_LIST_ID;
+    this.accountId = env.CLOUDFLARE_ACCOUNT_ID;
+    this.apiToken = env.CLOUDFLARE_API_TOKEN;
+    this.dnsListId = env.CLOUDFLARE_DNS_LIST_ID;
+    this.httpListId = env.CLOUDFLARE_HTTP_LIST_ID;
   }
 
   private getHeaders(): HeadersInit {

@@ -13,6 +13,12 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method;
+
+    // Parse ALLOWED_ORIGINS from environment variable (comma-separated)
+    const allowedOrigins = env.ALLOWED_ORIGINS
+      ? env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+      : [];
+
     try {
       validateEnvironment(env);
     } catch (error) {
@@ -37,7 +43,7 @@ export default {
     ctx.waitUntil(kvSync.checkAndInitializeSync());
 
     if (method === 'OPTIONS') {
-      return handleOptions(request);
+      return handleOptions(request, allowedOrigins);
     }
 
     try {
@@ -55,15 +61,15 @@ export default {
       }
 
       if (path === API_ENDPOINTS.ADD_DOMAIN && method === 'POST') {
-        return handleAddDomain(request, env, ctx, securityManager, performanceManager);
+        return handleAddDomain(request, env, ctx, securityManager, performanceManager, allowedOrigins);
       }
 
       if (path === API_ENDPOINTS.KV_BACKUP && method === 'GET') {
-        return handleGetKVBackup(env, performanceManager);
+        return handleGetKVBackup(request, env, performanceManager, allowedOrigins);
       }
 
       if (path === API_ENDPOINTS.SYNC_STATUS && method === 'GET') {
-        return handleGetSyncStatus(env, performanceManager);
+        return handleGetSyncStatus(request, env, performanceManager, allowedOrigins);
       }
 
       if (path === '/favicon.ico' && method === 'GET') {
@@ -98,7 +104,8 @@ async function handleAddDomain(
   env: Env,
   ctx: ExecutionContext,
   securityManager: SecurityManager,
-  performanceManager: PerformanceManager
+  performanceManager: PerformanceManager,
+  allowedOrigins: string[]
 ): Promise<Response> {
   const requestKey = createRequestKey(request, ['add-domain']);
 
@@ -106,16 +113,16 @@ async function handleAddDomain(
     try {
       const contentType = request.headers.get('content-type');
       if (!contentType?.includes('application/json')) {
-        return jsonResponse({ success: false, message: 'Invalid content type' }, HTTP_STATUS.BAD_REQUEST);
+        return jsonResponse(request, { success: false, message: 'Invalid content type' }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
 
       const body = await request.json() as any;
 
       if (!body.domain || !body.description) {
-        return jsonResponse({
+        return jsonResponse(request, {
           success: false,
           message: 'Domain and description are required'
-        }, HTTP_STATUS.BAD_REQUEST);
+        }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
 
       const domain = sanitizeInput(body.domain).toLowerCase();
@@ -130,21 +137,21 @@ async function handleAddDomain(
           details: `Invalid domain format: ${domain}`,
           endpoint: '/api/add-domain'
         });
-        return jsonResponse({ success: false, message: 'Invalid domain format' }, HTTP_STATUS.BAD_REQUEST);
+        return jsonResponse(request, { success: false, message: 'Invalid domain format' }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
 
       if (!validateDescription(description)) {
-        return jsonResponse({
+        return jsonResponse(request, {
           success: false,
           message: 'Description must be between 1 and 500 characters'
-        }, HTTP_STATUS.BAD_REQUEST);
+        }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
 
       if (!validateTargetList(targetList)) {
-        return jsonResponse({
+        return jsonResponse(request, {
           success: false,
           message: 'Invalid target list. Must be dns, http, or both'
-        }, HTTP_STATUS.BAD_REQUEST);
+        }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
       if (!await securityManager.validateInput(domain, 'domain') ||
           !await securityManager.validateInput(description, 'description')) {
@@ -156,10 +163,10 @@ async function handleAddDomain(
           details: `Suspicious input detected: ${domain}`,
           endpoint: '/api/add-domain'
         });
-        return jsonResponse({
+        return jsonResponse(request, {
           success: false,
           message: 'Input validation failed'
-        }, HTTP_STATUS.BAD_REQUEST);
+        }, HTTP_STATUS.BAD_REQUEST, allowedOrigins);
       }
 
       const cfApi = new CloudflareAPI(env);
@@ -177,10 +184,10 @@ async function handleAddDomain(
         const errorMessage = result.errors.length > 0
           ? result.errors.join('; ')
           : 'Failed to add domain to list';
-        return jsonResponse({
+        return jsonResponse(request, {
           success: false,
           message: errorMessage,
-        }, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+        }, HTTP_STATUS.INTERNAL_SERVER_ERROR, allowedOrigins);
       }
       const kvSync = new KVSync(env);
       ctx.waitUntil(kvSync.addDomainToKV(domain, description, submission.targetList));
@@ -201,11 +208,11 @@ async function handleAddDomain(
         message += ` (Note: ${result.errors.join('; ')})`;
       }
 
-      return jsonResponse({
+      return jsonResponse(request, {
         success: true,
         message,
         domain,
-      });
+      }, HTTP_STATUS.OK, allowedOrigins);
     } catch (error) {
       console.error('Error adding domain:', String(error));
 
@@ -220,15 +227,20 @@ async function handleAddDomain(
 
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-      return jsonResponse({
+      return jsonResponse(request, {
         success: false,
         message: errorMessage,
-      }, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+      }, HTTP_STATUS.INTERNAL_SERVER_ERROR, allowedOrigins);
     }
   });
 }
 
-async function handleGetKVBackup(env: Env, performanceManager: PerformanceManager): Promise<Response> {
+async function handleGetKVBackup(
+  request: Request,
+  env: Env,
+  performanceManager: PerformanceManager,
+  allowedOrigins: string[]
+): Promise<Response> {
   try {
     const responseData = await performanceManager.getCachedData('kv-backup', async () => {
       const kvSync = new KVSync(env);
@@ -253,19 +265,24 @@ async function handleGetKVBackup(env: Env, performanceManager: PerformanceManage
     return new Response(JSON.stringify(responseData), {
       headers: {
         'Content-Type': 'application/json',
-        ...getCorsHeaders(),
+        ...getCorsHeaders(request, allowedOrigins),
       },
     });
   } catch (error) {
     console.error('Error fetching KV backup:', String(error));
-    return jsonResponse({
+    return jsonResponse(request, {
       success: false,
       message: 'Failed to fetch KV backup',
-    }, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }, HTTP_STATUS.INTERNAL_SERVER_ERROR, allowedOrigins);
   }
 }
 
-async function handleGetSyncStatus(env: Env, performanceManager: PerformanceManager): Promise<Response> {
+async function handleGetSyncStatus(
+  request: Request,
+  env: Env,
+  performanceManager: PerformanceManager,
+  allowedOrigins: string[]
+): Promise<Response> {
   try {
     const responseData = await performanceManager.getCachedData('sync-status', async () => {
       const kvSync = new KVSync(env);
@@ -296,24 +313,29 @@ async function handleGetSyncStatus(env: Env, performanceManager: PerformanceMana
     return new Response(JSON.stringify(responseData), {
       headers: {
         'Content-Type': 'application/json',
-        ...getCorsHeaders(),
+        ...getCorsHeaders(request, allowedOrigins),
       },
     });
   } catch (error) {
     console.error('Error fetching sync status:', String(error));
-    return jsonResponse({
+    return jsonResponse(request, {
       success: false,
       message: 'Failed to fetch sync status',
-    }, HTTP_STATUS.INTERNAL_SERVER_ERROR);
+    }, HTTP_STATUS.INTERNAL_SERVER_ERROR, allowedOrigins);
   }
 }
 
-function jsonResponse(data: FormResponse, status: number = HTTP_STATUS.OK): Response {
+function jsonResponse(
+  request: Request,
+  data: FormResponse,
+  status: number = HTTP_STATUS.OK,
+  allowedOrigins: string[] = []
+): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json',
-      ...getCorsHeaders(),
+      ...getCorsHeaders(request, allowedOrigins),
     },
   });
 }
