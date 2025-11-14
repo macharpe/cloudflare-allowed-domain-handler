@@ -15,10 +15,10 @@ export class SecurityManager {
 
   async validateEnvironment(env: Env): Promise<void> {
     const required = [
-      'CF_ACCOUNT_ID',
-      'CF_API_TOKEN',
-      'CF_DNS_LIST_ID',
-      'CF_HTTP_LIST_ID',
+      'CLOUDFLARE_ACCOUNT_ID',
+      'CLOUDFLARE_API_TOKEN',
+      'CLOUDFLARE_DNS_LIST_ID',
+      'CLOUDFLARE_HTTP_LIST_ID',
       'DNS_DOMAINS_BACKUP',
       'HTTP_DOMAINS_BACKUP'
     ];
@@ -156,10 +156,10 @@ export class SecurityManager {
 
 export function validateEnvironment(env: Env): void {
   const required = [
-    'CF_ACCOUNT_ID',
-    'CF_API_TOKEN',
-    'CF_DNS_LIST_ID',
-    'CF_HTTP_LIST_ID'
+    'CLOUDFLARE_ACCOUNT_ID',
+    'CLOUDFLARE_API_TOKEN',
+    'CLOUDFLARE_DNS_LIST_ID',
+    'CLOUDFLARE_HTTP_LIST_ID'
   ];
 
   for (const key of required) {

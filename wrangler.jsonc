@@ -6,11 +6,15 @@
     "nodejs_compat"
   ],
   "vars": {
-    "CF_ACCOUNT_ID": "6b3bd3e4a3c3f11b51c67f98641a8688",
-    "CF_DNS_LIST_ID": "8c39e7a7-3eee-4463-a8bf-0d510aa47b23", // [DNS] Allowed Domains
-    "CF_HTTP_LIST_ID": "cfdd47d9-224e-446c-8049-f9cc966a5c5b" // [HTTP] Allowed Domains
+    "CLOUDFLARE_ACCOUNT_ID": "6b3bd3e4a3c3f11b51c67f98641a8688",
+    "CLOUDFLARE_DNS_LIST_ID": "8c39e7a7-3eee-4463-a8bf-0d510aa47b23", // [DNS] Allowed Domains
+    "CLOUDFLARE_HTTP_LIST_ID": "cfdd47d9-224e-446c-8049-f9cc966a5c5b", // [HTTP] Allowed Domains
+    // CORS security: Comma-separated list of allowed origins for dynamic CORS
+    // Example: "https://example.com,https://app.example.com,http://localhost:3000"
+    // If not set or empty, CORS will default to wildcard (*)
+    "ALLOWED_ORIGINS": "https://adh.macharpe.com"
   },
-  // Secret: CF_API_TOKEN (set via: wrangler secret put CF_API_TOKEN)
+  // Secret: CLOUDFLARE_API_TOKEN (set via: wrangler secret put CLOUDFLARE_API_TOKEN)
 
   // Disable workers.dev and preview URLs
   "workers_dev": false,

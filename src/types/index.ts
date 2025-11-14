@@ -1,10 +1,11 @@
 export interface Env {
-  CF_ACCOUNT_ID: string;
-  CF_API_TOKEN: string;
-  CF_DNS_LIST_ID: string;
-  CF_HTTP_LIST_ID: string;
+  CLOUDFLARE_ACCOUNT_ID: string;
+  CLOUDFLARE_API_TOKEN: string;
+  CLOUDFLARE_DNS_LIST_ID: string;
+  CLOUDFLARE_HTTP_LIST_ID: string;
   DNS_DOMAINS_BACKUP: KVNamespace;
   HTTP_DOMAINS_BACKUP: KVNamespace;
+  ALLOWED_ORIGINS?: string;
 }
 
 export interface DomainSubmission {
